@@ -1,9 +1,22 @@
 use crate::network::Network;
+use crate::Account;
+use alloy::node_bindings::AnvilInstance;
+use bitcoind::BitcoinD;
+use near_workspaces::network::Sandbox;
+use near_workspaces::Worker;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
+pub enum NodeInstance {
+    Anvil(AnvilInstance),
+    Bitcoin(BitcoinD),
+    Workspaces(Worker<Sandbox>),
+}
+
+#[derive(Debug)]
 pub struct ChainConfig {
     pub node_url: String,
-    pub default_accounts: Vec<String>,
+    pub node_instance: Option<NodeInstance>,
+    pub accounts: Vec<Option<Account>>,
 }
 
 impl ChainConfig {
@@ -11,15 +24,18 @@ impl ChainConfig {
         match network {
             Network::Ethereum => ChainConfig {
                 node_url: "http://localhost:8545".to_string(),
-                default_accounts: vec!["alice".to_string(), "bob".to_string()],
+                node_instance: None,
+                accounts: vec![None],
             },
             Network::Near => ChainConfig {
                 node_url: "https://rpc.testnet.near.org".to_string(),
-                default_accounts: vec!["alice.testnet".to_string(), "bob.testnet".to_string()],
+                node_instance: None,
+                accounts: vec![None],
             },
             Network::Bitcoin => ChainConfig {
                 node_url: "http://localhost:18443".to_string(),
-                default_accounts: vec!["alice_btc".to_string(), "bob_btc".to_string()],
+                node_instance: None,
+                accounts: vec![None],
             },
         }
     }
