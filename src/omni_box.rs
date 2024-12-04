@@ -11,17 +11,14 @@ use crate::{
 use std::collections::HashMap;
 
 pub struct OmniBox {
-    chains: HashMap<Network, ChainConfig>,
+    pub chains: HashMap<Network, ChainConfig>,
 }
-
-// TODO: Setup 3 accounts (account1, account2, deployer)
 
 impl OmniBox {
     pub async fn new() -> Self {
         Self::new_with_conf(None).await
     }
 
-    // TODO: Start a friendly near client instance
     pub async fn new_with_conf(options: Option<OmniBoxOptions>) -> Self {
         let mut chains = HashMap::new();
         let options = options.unwrap_or_default();
@@ -40,28 +37,14 @@ impl OmniBox {
             chains.insert(module, config);
         }
 
-        // TODO: Initialize_accounts debe de ser llamado por cada chain
         // Create the OmniBox instance and initialize the accounts and nodes
         let mut omni_box = OmniBox { chains };
-        omni_box.initialize_accounts();
         omni_box.initialize_nodes().await;
+        omni_box.initialize_accounts();
         omni_box
     }
 
     // Internal methods
-    fn initialize_accounts(&mut self) {
-        for (network, config) in &mut self.chains {
-            match network {
-                Network::Near => {
-                    let account_info = get_user_account_info_from_file(None).unwrap();
-                    config.accounts = vec![Some(account_info.into())];
-                }
-                _ => {}
-            }
-        }
-    }
-
-    // TODO: Esto tambien se deberia de inicializar por cada chain condicionalmente
     async fn initialize_nodes(&mut self) {
         for (network, config) in &mut self.chains {
             match network {
@@ -83,6 +66,18 @@ impl OmniBox {
                         println!("Initialized Near node at {}", config.node_url);
                     }
                 }
+            }
+        }
+    }
+
+    fn initialize_accounts(&mut self) {
+        for (network, config) in &mut self.chains {
+            match network {
+                Network::Near => {
+                    let account_info = get_user_account_info_from_file(None).unwrap();
+                    config.accounts = vec![Some(account_info.into())];
+                }
+                _ => {}
             }
         }
     }
