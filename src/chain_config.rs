@@ -28,7 +28,7 @@ impl ChainConfig {
                 accounts: vec![None],
             },
             Network::Near => ChainConfig {
-                node_url: "https://rpc.testnet.near.org".to_string(),
+                node_url: "https://localhost:3030".to_string(),
                 node_instance: None,
                 accounts: vec![None],
             },
