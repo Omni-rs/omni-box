@@ -30,8 +30,8 @@ type Provider = FillProvider<
 #[derive(Debug)]
 pub struct EVMTestContext {
     pub anvil: AnvilInstance,
-    alice: EthereumWallet,
-    bob: EthereumWallet,
+    pub alice: EthereumWallet,
+    pub bob: EthereumWallet,
 }
 
 impl Default for EVMTestContext {

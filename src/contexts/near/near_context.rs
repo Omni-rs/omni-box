@@ -5,9 +5,9 @@ use crate::clients::get_near_instance;
 
 #[derive(Debug)]
 pub struct NearTestContext {
-    client: Worker<Sandbox>,
-    alice: Account,
-    bob: Account,
+    pub client: Worker<Sandbox>,
+    pub alice: Account,
+    pub bob: Account,
 }
 
 /// The NearTestContext is a struct that contains the Near client and two accounts for testing.

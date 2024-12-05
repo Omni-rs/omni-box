@@ -7,7 +7,10 @@ mod network;
 mod omni_box;
 mod omni_box_options;
 
-pub use account_config::near_account::NearAccount;
-pub use account_config::Account;
-
+pub use chain_config::ChainOverrides;
 pub use omni_box::OmniBox;
+
+/// Represents a Near account from a file
+pub use account_config::near_account::NearAccount;
+/// Represents an account of either Near or Ethereum or Bitcoin
+pub use account_config::Account;

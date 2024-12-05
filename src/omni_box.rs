@@ -73,8 +73,3 @@ impl OmniBox {
         Ok(())
     }
 }
-
-#[derive(Debug, Clone)]
-pub struct ChainOverrides {
-    pub node_url: Option<String>,
-}

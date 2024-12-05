@@ -1,4 +1,4 @@
-use crate::{network::Network, omni_box::ChainOverrides};
+use crate::{chain_config::ChainOverrides, network::Network};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]

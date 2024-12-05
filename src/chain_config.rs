@@ -19,6 +19,11 @@ pub struct ChainConfig {
     pub accounts: Vec<Option<Account>>,
 }
 
+#[derive(Debug, Clone)]
+pub struct ChainOverrides {
+    pub node_url: Option<String>,
+}
+
 impl ChainConfig {
     pub fn default(network: Network) -> Self {
         match network {
