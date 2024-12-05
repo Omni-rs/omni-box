@@ -1,7 +1,6 @@
 use crate::{
     account_config::get_user_account_info_from_file,
-    chain_config::ChainConfig, // NodeInstance
-    // clients::{get_anvil_instance, get_bitcoin_instance, get_near_instance},
+    chain_config::ChainConfig,
     contexts::{BTCTestContext, EVMTestContext, NearTestContext},
     friendly_near_json_rpc_client::{
         near_network_config::NearNetworkConfig, FriendlyNearJsonRpcClient,
@@ -47,54 +46,11 @@ impl OmniBox {
             near_context: NearTestContext::new().await,
             evm_context: EVMTestContext::default(),
         }
-        // let mut omni_box = omni_box.initialize_omnibox().await;
-        // omni_box.initialize_accounts();
-        // omni_box
     }
 
     pub fn get_chain_config(&self, network: &Network) -> Option<&ChainConfig> {
         self.chains.get(network)
     }
-    // initialize test context
-    // in this initialization, we start the client and pass that to the test context
-
-    // Internal methods
-    // async fn initialize_omnibox(&mut self) {
-    //     for (network, config) in &mut self.chains {
-    //         match network {
-    //             Network::Ethereum => {
-    //                 if let Ok(anvil) = get_anvil_instance() {
-    //                     config.node_instance = Some(NodeInstance::Anvil(anvil));
-    //                     println!("Initialized Ethereum node at {}", config.node_url);
-    //                 }
-    //             }
-    //             Network::Bitcoin => {
-    //                 if let Ok(bitcoind) = get_bitcoin_instance() {
-    //                     config.node_instance = Some(NodeInstance::Bitcoin(bitcoind));
-    //                     println!("Initialized Bitcoin node at {}", config.node_url);
-    //                 }
-    //             }
-    //             Network::Near => {
-    //                 if let Ok(near) = get_near_instance().await {
-    //                     config.node_instance = Some(NodeInstance::Workspaces(near));
-    //                     println!("Initialized Near node at {}", config.node_url);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
-    // fn initialize_accounts(&mut self) {
-    //     for (network, config) in &mut self.chains {
-    //         match network {
-    //             Network::Near => {
-    //                 let account_info = get_user_account_info_from_file(None).unwrap();
-    //                 config.accounts = vec![Some(account_info.into())];
-    //             }
-    //             _ => {}
-    //         }
-    //     }
-    // }
 
     // Near utils
     pub async fn compile_and_deploy_contract(
