@@ -27,7 +27,7 @@ struct ConfigJSON {
     public_key: String,
 }
 
-const DEFAULT_ACCOUNTS_FILE_PATH: &str = "accounts.json";
+const DEFAULT_ACCOUNTS_FILE_PATH: &str = "deployer.json";
 
 pub fn get_user_account_info_from_file(
     config_file_path: Option<&str>,
