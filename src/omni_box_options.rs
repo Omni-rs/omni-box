@@ -1,4 +1,4 @@
-use crate::{network::Network, omni_box::ChainOverrides};
+use crate::{chain_config::ChainOverrides, network::Network};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -9,7 +9,7 @@ pub struct OmniBoxOptions {
 
 impl Default for OmniBoxOptions {
     fn default() -> Self {
-        OmniBoxOptions {
+        Self {
             modules: vec![Network::Ethereum, Network::Near, Network::Bitcoin],
             overrides: HashMap::new(),
         }
