@@ -1,7 +1,11 @@
 [package]
 name = "omni-box"
 version = "0.1.0"
+authors = ["Proximity Labs <hello@proximity.dev>"]
+license = "Apache-2.0"
 edition = "2021"
+repository = "https://github.com/near/omni-box"
+description = "Multichain testing environment for developing chain abstracted applications on NEAR"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
