@@ -1,7 +1,7 @@
 [package]
 name = "omni-box"
 version = "0.1.0"
-authors = ["Proximity Labs <hello@proximity.dev>"]
+authors = ["Proximity Labs Limited"]
 license = "Apache-2.0"
 edition = "2021"
 repository = "https://github.com/near/omni-box"
