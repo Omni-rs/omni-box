@@ -1,5 +1,3 @@
-use bitcoind;
-
 pub fn get_bitcoin_instance() -> Result<bitcoind::BitcoinD, Box<dyn std::error::Error>> {
     bitcoind::exe_path().map_or_else(
         |_| {

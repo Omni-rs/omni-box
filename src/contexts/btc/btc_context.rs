@@ -34,15 +34,15 @@ pub struct BTCTestContext {
 impl Default for BTCTestContext {
     fn default() -> Self {
         let bitcoind: bitcoind::BitcoinD = get_bitcoin_instance().unwrap();
-        BTCTestContext::new(bitcoind).unwrap()
+        Self::new(bitcoind).unwrap()
     }
 }
 
 impl BTCTestContext {
     pub fn new(bitcoind_instance: bitcoind::BitcoinD) -> Result<Self, Box<dyn std::error::Error>> {
         let client = &bitcoind_instance.client;
-        let master_key_p2pkh = Self::get_master_key_of_regtest_node_p2pkh(&client)?;
-        let master_key_p2wpkh = Self::get_master_key_of_regtest_node_p2wpkh(&client)?;
+        let master_key_p2pkh = Self::get_master_key_of_regtest_node_p2pkh(client)?;
+        let master_key_p2wpkh = Self::get_master_key_of_regtest_node_p2wpkh(client)?;
 
         let alice_legacy =
             Self::setup_account(client, master_key_p2pkh, AddressType::Legacy).unwrap();
@@ -53,9 +53,9 @@ impl BTCTestContext {
         let bob_segwit =
             Self::setup_account(client, master_key_p2wpkh, AddressType::Bech32).unwrap();
 
-        Ok(BTCTestContext {
+        Ok(Self {
             bitcoind_instance,
-            master_key_p2pkh: master_key_p2pkh.clone(),
+            master_key_p2pkh,
             master_key_p2wpkh,
             alice_legacy,
             alice_segwit,
@@ -64,7 +64,7 @@ impl BTCTestContext {
         })
     }
 
-    pub fn client(&self) -> &bitcoind::Client {
+    pub const fn client(&self) -> &bitcoind::Client {
         &self.bitcoind_instance.client
     }
 
@@ -155,9 +155,9 @@ impl BTCTestContext {
     ) -> Result<UserInfo, Box<dyn std::error::Error>> {
         let client = self.client();
         let master_key = if address_type == AddressType::Bech32 {
-            self.master_key_p2wpkh.clone()
+            self.master_key_p2wpkh
         } else {
-            self.master_key_p2pkh.clone()
+            self.master_key_p2pkh
         };
         Self::setup_account(client, master_key, address_type)
     }
@@ -343,19 +343,19 @@ impl BTCTestContext {
         Ok(unspent_utxos)
     }
 
-    pub fn get_alice_legacy(&self) -> &UserInfo {
+    pub const fn get_alice_legacy(&self) -> &UserInfo {
         &self.alice_legacy
     }
 
-    pub fn get_alice_segwit(&self) -> &UserInfo {
+    pub const fn get_alice_segwit(&self) -> &UserInfo {
         &self.alice_segwit
     }
 
-    pub fn get_bob_legacy(&self) -> &UserInfo {
+    pub const fn get_bob_legacy(&self) -> &UserInfo {
         &self.bob_legacy
     }
 
-    pub fn get_bob_segwit(&self) -> &UserInfo {
+    pub const fn get_bob_segwit(&self) -> &UserInfo {
         &self.bob_segwit
     }
 }

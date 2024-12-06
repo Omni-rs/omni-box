@@ -27,17 +27,17 @@ pub struct ChainOverrides {
 impl ChainConfig {
     pub fn default(network: Network) -> Self {
         match network {
-            Network::Ethereum => ChainConfig {
+            Network::Ethereum => Self {
                 node_url: "http://localhost:8545".to_string(),
                 node_instance: None,
                 accounts: vec![None],
             },
-            Network::Near => ChainConfig {
+            Network::Near => Self {
                 node_url: "https://localhost:3030".to_string(),
                 node_instance: None,
                 accounts: vec![None],
             },
-            Network::Bitcoin => ChainConfig {
+            Network::Bitcoin => Self {
                 node_url: "http://localhost:18443".to_string(),
                 node_instance: None,
                 accounts: vec![None],

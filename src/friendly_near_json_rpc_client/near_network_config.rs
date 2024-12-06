@@ -4,7 +4,7 @@ pub enum NearNetworkConfig {
     Local,
 }
 
-pub fn get_rpc_url(network: NearNetworkConfig) -> &'static str {
+pub const fn get_rpc_url(network: NearNetworkConfig) -> &'static str {
     match network {
         NearNetworkConfig::Testnet => "https://rpc.testnet.near.org",
         NearNetworkConfig::Mainnet => "https://rpc.mainnet.near.org",

@@ -16,7 +16,7 @@ pub enum Account {
 
 impl From<NearAccount> for Account {
     fn from(account: NearAccount) -> Self {
-        Account::Near(account)
+        Self::Near(account)
     }
 }
 

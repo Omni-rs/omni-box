@@ -49,25 +49,23 @@ impl EVMTestContext {
         let alice = EthereumWallet::from(alice_signer);
         let bob = EthereumWallet::from(bob_signer);
 
-        EVMTestContext { anvil, alice, bob }
+        Self { anvil, alice, bob }
     }
 
-    pub fn alice(&self) -> &EthereumWallet {
+    pub const fn alice(&self) -> &EthereumWallet {
         &self.alice
     }
 
-    pub fn bob(&self) -> &EthereumWallet {
+    pub const fn bob(&self) -> &EthereumWallet {
         &self.bob
     }
 
     pub fn get_provider(&self, wallet: EthereumWallet) -> Provider {
         // Create a provider with the wallet.
         let rpc_url = self.anvil.endpoint().parse().unwrap();
-        let provider = ProviderBuilder::new()
+        ProviderBuilder::new()
             .with_recommended_fillers()
             .wallet(wallet)
-            .on_http(rpc_url);
-
-        provider
+            .on_http(rpc_url)
     }
 }

@@ -22,22 +22,22 @@ impl NearTestContext {
         let alice = sandbox_worker.dev_create_account().await.unwrap();
         let bob = sandbox_worker.dev_create_account().await.unwrap();
 
-        NearTestContext {
+        Self {
             client: sandbox_worker,
             alice,
             bob,
         }
     }
 
-    pub fn client(&self) -> &Worker<Sandbox> {
+    pub const fn client(&self) -> &Worker<Sandbox> {
         &self.client
     }
 
-    pub fn alice(&self) -> &Account {
+    pub const fn alice(&self) -> &Account {
         &self.alice
     }
 
-    pub fn bob(&self) -> &Account {
+    pub const fn bob(&self) -> &Account {
         &self.bob
     }
 

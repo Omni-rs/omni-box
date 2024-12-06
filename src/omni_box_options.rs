@@ -9,7 +9,7 @@ pub struct OmniBoxOptions {
 
 impl Default for OmniBoxOptions {
     fn default() -> Self {
-        OmniBoxOptions {
+        Self {
             modules: vec![Network::Ethereum, Network::Near, Network::Bitcoin],
             overrides: HashMap::new(),
         }

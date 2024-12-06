@@ -2,7 +2,6 @@ use bitcoin::hashes::{ripemd160, Hash};
 use bitcoin::opcodes::all::{OP_CHECKSIG, OP_DUP, OP_EQUALVERIFY, OP_HASH160};
 use bitcoin::script::Builder;
 use bitcoin::{Address, CompressedPublicKey, Network};
-use bs58;
 use k256::elliptic_curve::sec1::FromEncodedPoint;
 use k256::elliptic_curve::sec1::ToEncodedPoint;
 use k256::sha2::{Digest, Sha256};
