@@ -14,3 +14,5 @@ pub use omni_box::OmniBox;
 pub use account_config::near_account::NearAccount;
 /// Represents an account of either Near or Ethereum or Bitcoin
 pub use account_config::Account;
+pub use friendly_near_json_rpc_client::near_network_config::get_rpc_url;
+pub use friendly_near_json_rpc_client::near_network_config::NearNetworkConfig;
