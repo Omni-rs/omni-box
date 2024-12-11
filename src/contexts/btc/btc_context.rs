@@ -1,6 +1,6 @@
 use crate::clients::get_bitcoin_instance;
 
-use super::utils::DerivedAddress;
+use crate::utils::address::DerivedAddress;
 use bitcoin::bip32::DerivationPath;
 use bitcoin::secp256k1::{PublicKey, Secp256k1, SecretKey};
 use bitcoin::{bip32::Xpriv, Address, Network, ScriptBuf};
