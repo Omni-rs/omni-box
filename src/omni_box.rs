@@ -7,6 +7,7 @@ use crate::{
     },
     network::Network,
     omni_box_options::OmniBoxOptions,
+    NearAccount,
 };
 use std::collections::HashMap;
 
@@ -15,6 +16,7 @@ pub struct OmniBox {
     pub btc_context: BTCTestContext,
     pub near_context: NearTestContext,
     pub evm_context: EVMTestContext,
+    pub deployer_account: NearAccount,
 }
 
 impl OmniBox {
@@ -39,13 +41,24 @@ impl OmniBox {
             chains.insert(module, config);
         }
 
+        let deployer_account = get_user_account_info_from_file(None).unwrap();
+
         // Create the OmniBox instance, each context will be initialized with the default configuration
-        Self {
+        let omnibox = Self {
             chains,
             btc_context: BTCTestContext::default(),
             near_context: NearTestContext::new().await,
             evm_context: EVMTestContext::default(),
-        }
+            deployer_account,
+        };
+
+        // Auto compile and deploy
+        omnibox
+            .compile_and_deploy_contract(options.path, options.default_near_network)
+            .await
+            .unwrap();
+
+        omnibox
     }
 
     pub fn get_chain_config(&self, network: &Network) -> Option<&ChainConfig> {
@@ -53,12 +66,14 @@ impl OmniBox {
     }
 
     // Near utils
-    pub async fn compile_and_deploy_contract(
+    async fn compile_and_deploy_contract(
         &self,
-        path: &str,
+        path: &'static str,
         network: NearNetworkConfig,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // Compile the contract
+        println!("Compiling contract");
+
         let contract_wasm = near_workspaces::compile_project(path).await?;
 
         let config_account = get_user_account_info_from_file(None).unwrap();
