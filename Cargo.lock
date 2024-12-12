@@ -3103,6 +3103,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "35cbb989542587b47205e608324ddd391f0cee1c22b4b64ae49f458334b95907"
 dependencies = [
  "borsh",
+ "schemars",
  "serde",
 ]
 
@@ -3896,11 +3897,31 @@ dependencies = [
  "near-primitives 0.25.0",
  "near-sdk",
  "near-workspaces",
+ "omni-transaction",
  "ripemd",
  "serde",
  "serde_json",
  "sha3",
  "tokio",
+]
+
+[[package]]
+name = "omni-transaction"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "50987428ee0d44b3e333ebf8ab27420bea653e3a31bc7531f3abcc40a94621c1"
+dependencies = [
+ "borsh",
+ "bs58 0.5.1",
+ "hex",
+ "near-account-id",
+ "near-sdk",
+ "rlp 0.6.1",
+ "schemars",
+ "serde",
+ "serde-big-array",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]
@@ -4461,6 +4482,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "rlp"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fa24e92bb2a83198bb76d661a71df9f7076b8c420b8696e4d3d97d50d94479e3"
+dependencies = [
+ "bytes",
+ "rustc-hex",
+]
+
+[[package]]
 name = "ruint"
 version = "1.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4477,7 +4508,7 @@ dependencies = [
  "primitive-types 0.12.2",
  "proptest",
  "rand",
- "rlp",
+ "rlp 0.5.2",
  "ruint-macro",
  "serde",
  "valuable",
@@ -4836,6 +4867,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6513c1ad0b11a9376da888e3e0baa0077f1aed55c17f50e7b2397136129fb88f"
 dependencies = [
  "serde_derive",
+]
+
+[[package]]
+name = "serde-big-array"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "11fc7cc2c76d73e0f27ee52abbd64eec84d46f370c88371120433196934e4b7f"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

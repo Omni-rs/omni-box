@@ -28,6 +28,8 @@ impl OmniBox {
         let mut chains = HashMap::new();
         let options = options.unwrap_or_default();
 
+        println!("Creating OmniBox with options: {:#?}", options);
+
         for module in options.modules {
             // Create a default configuration for this module / chain / network
             let mut config = ChainConfig::default(module.clone());
@@ -41,6 +43,7 @@ impl OmniBox {
             chains.insert(module, config);
         }
 
+        // Get the deployer account
         let deployer_account = get_user_account_info_from_file(None).unwrap();
 
         // Create the OmniBox instance, each context will be initialized with the default configuration
