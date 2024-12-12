@@ -74,13 +74,29 @@ pub fn get_derived_address_for_segwit(predecessor_id: &AccountId, path: &str) ->
     }
 }
 
-pub fn get_derived_address(predecessor_id: &AccountId, path: &str) -> DerivedAddress {
+pub fn get_derived_address_for_btc_legacy(
+    predecessor_id: &AccountId,
+    path: &str,
+) -> DerivedAddress {
     let epsilon = derive_epsilon(predecessor_id, path);
     let public_key = convert_string_to_public_key(ROOT_PUBLIC_KEY).unwrap();
     let derived_public_key = derive_key(public_key, epsilon);
-    let address = public_key_to_btc_address(derived_public_key, "testnet");
+    let btc_address = public_key_to_btc_address(derived_public_key, "testnet");
+
     DerivedAddress {
-        address,
+        address: btc_address,
+        public_key: derived_public_key,
+    }
+}
+
+pub fn get_derived_address_for_evm(predecessor_id: &AccountId, path: &str) -> DerivedAddress {
+    let epsilon = derive_epsilon(predecessor_id, path);
+    let public_key = convert_string_to_public_key(ROOT_PUBLIC_KEY).unwrap();
+    let derived_public_key = derive_key(public_key, epsilon);
+    let evm_address = public_key_to_evm_address(derived_public_key);
+
+    DerivedAddress {
+        address: evm_address,
         public_key: derived_public_key,
     }
 }
@@ -199,6 +215,19 @@ fn public_key_to_btc_address(public_key: AffinePoint, network: &str) -> String {
     base58check_encode(&address_bytes)
 }
 
+pub fn public_key_to_evm_address(public_key: AffinePoint) -> String {
+    let encoded_point = public_key.to_encoded_point(false);
+    let public_key_bytes = encoded_point.as_bytes();
+
+    let x_only = &public_key_bytes[1..];
+
+    let hash = Sha3_256::digest(x_only);
+
+    let eth_address_bytes = &hash[12..];
+
+    format!("0x{}", hex::encode(eth_address_bytes))
+}
+
 /// Converts a public key to a public key hash
 pub fn public_key_to_hash(public_key: AffinePoint) -> Vec<u8> {
     let encoded_point = public_key.to_encoded_point(false);
@@ -268,5 +297,24 @@ mod tests {
 
         assert_eq!(btc_address, "n19iEMJE2L2YBfJFsXC8Gzs7Q2Z7TwdCqv");
         assert_eq!(derived_public_key_hex, "0471f75dc56b971fbe52dd3e80d2f8532eb8905157556df39cb7338a67c80412640c869f717217ba5b916db6d7dc7d6a84220f8251e626adad62cac9c7d6f8e032");
+    }
+
+    #[test]
+    fn test_evm_address() {
+        let predecessor_id = "omnitester.testnet".parse().unwrap();
+        let path = "ethereum-1";
+
+        let epsilon = derive_epsilon(&predecessor_id, path);
+
+        let public_key = convert_string_to_public_key("secp256k1:4NfTiv3UsGahebgTaHyD9vF8KYKMBnfd6kh94mK6xv8fGBiJB8TBtFMP5WWXz6B89Ac1fbpzPwAvoyQebemHFwx3").unwrap();
+
+        let derived_public_key = derive_key(public_key, epsilon);
+
+        let derived_public_key_hex = public_key_to_hex(derived_public_key);
+
+        let evm_address = public_key_to_evm_address(derived_public_key);
+
+        assert_eq!(evm_address, "0xc1aeb47316d5594449b65fb366965b8c81ebd664");
+        assert_eq!(derived_public_key_hex, "04e612e7650febebc50b448bf790f6bdd70a8a6ce3b111a1d7e72c87afe84be776e36226e3f89de1ba3cbb62c0f3fc05bffae672c9c59d5fa8a4737b6547c64eb7");
     }
 }
