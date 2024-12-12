@@ -206,4 +206,33 @@ impl FriendlyNearJsonRpcClient {
 
         Err("Failed to parse contract call result".into())
     }
+
+    pub async fn call_contract_with_account_id<T>(
+        &self,
+        account_id: &str,
+        method_name: &str,
+        args: serde_json::Value,
+    ) -> Result<T, Box<dyn Error>>
+    where
+        T: ParseResult,
+    {
+        let request = RpcQueryRequest {
+            block_reference: BlockReference::Finality(Finality::Final),
+            request: QueryRequest::CallFunction {
+                account_id: account_id.parse().unwrap(),
+                method_name: method_name.to_string(),
+                args: FunctionArgs::from(args.to_string().into_bytes()),
+            },
+        };
+
+        let response = self.client.call(request).await?;
+
+        // Parse result
+        if let QueryResponseKind::CallResult(call_result) = response.kind {
+            let result_str = String::from_utf8(call_result.result.clone())?;
+            return T::parse(result_str);
+        }
+
+        Err("Failed to parse contract call result".into())
+    }
 }

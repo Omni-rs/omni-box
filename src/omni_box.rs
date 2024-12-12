@@ -20,6 +20,8 @@ pub struct OmniBox {
     pub friendly_near_json_rpc_client: FriendlyNearJsonRpcClient,
 }
 
+const MPC_SIGNER: &str = "v1.signer-prod.testnet";
+
 impl OmniBox {
     pub async fn new() -> Self {
         Self::new_with_conf(None).await
@@ -92,13 +94,12 @@ impl OmniBox {
         Ok(())
     }
 
-    // TODO: pass v1.signer-prod.testnet as the contract we want to call
     pub async fn get_experimental_signature_deposit(&self) -> Result<u128, Box<dyn Error>> {
         let method_name = "experimental_signature_deposit";
         let args = json!({});
 
         self.friendly_near_json_rpc_client
-            .call_contract::<u128>(method_name, args)
+            .call_contract_with_account_id::<u128>(MPC_SIGNER, method_name, args)
             .await
     }
 }
