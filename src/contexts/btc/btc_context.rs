@@ -9,6 +9,8 @@ use bitcoind::AddressType;
 use serde_json::{json, Value};
 use std::str::FromStr as _;
 
+use super::types::{ListUnspentResult, ScanTxOutSetResult, UnspentOutput};
+
 #[derive(Debug)]
 pub struct UserInfo {
     pub address: Address,
@@ -242,85 +244,46 @@ impl BTCTestContext {
     pub fn scan_utxo_for_address(
         &self,
         address: &DerivedAddress,
-    ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<UnspentOutput>, Box<dyn std::error::Error>> {
         let near_contract_address = bitcoin::Address::from_str(&address.address.to_string())?;
         let near_contract_address = near_contract_address
             .require_network(Network::Regtest)
             .unwrap();
 
-        let scan_txout_set_result: serde_json::Value = self
-            .client()
-            .call(
-                "scantxoutset",
-                &[
-                    json!("start"),
-                    json!([{ "desc": format!("addr({})", near_contract_address) }]),
-                ],
-            )
-            .unwrap();
+        let scan_txout_set_result: ScanTxOutSetResult = self.client().call(
+            "scantxoutset",
+            &[
+                json!("start"),
+                json!([{ "desc": format!("addr({})", near_contract_address) }]),
+            ],
+        )?;
 
-        Ok(scan_txout_set_result)
+        Ok(scan_txout_set_result.unspents)
     }
 
     pub fn scan_utxo_for_address_with_count(
         &self,
         address: &DerivedAddress,
         count: usize,
-    ) -> Result<Vec<serde_json::Value>, Box<dyn std::error::Error>> {
-        let near_contract_address = bitcoin::Address::from_str(&address.address.to_string())?;
-        let near_contract_address = near_contract_address
-            .require_network(Network::Regtest)
-            .unwrap();
-
-        let scan_txout_set_result: serde_json::Value = self
-            .client()
-            .call(
-                "scantxoutset",
-                &[
-                    json!("start"),
-                    json!([{ "desc": format!("addr({})", near_contract_address) }]),
-                ],
-            )
-            .unwrap();
-
-        // Extraer los outputs no gastados
-        let unspents = scan_txout_set_result
-            .as_object()
-            .unwrap()
-            .get("unspents")
-            .unwrap()
-            .as_array()
-            .unwrap();
+    ) -> Result<Vec<UnspentOutput>, Box<dyn std::error::Error>> {
+        let unspents = self.scan_utxo_for_address(address)?;
 
         // Obtener la cantidad solicitada de elementos
-        let selected_unspents: Vec<serde_json::Value> =
-            unspents.iter().take(count).cloned().collect();
+        let selected_unspents: Vec<UnspentOutput> = unspents.into_iter().take(count).collect();
 
         Ok(selected_unspents)
-    }
-
-    pub fn assert_utxos_for_address(&self, address: Address, number_of_utxos: usize) {
-        let unspent_utxos: Vec<serde_json::Value> = self.get_utxo_for_address(&address).unwrap();
-
-        assert!(
-            unspent_utxos.len() == number_of_utxos,
-            "Expected {} UTXOs for address {}, but found {}",
-            number_of_utxos,
-            address,
-            unspent_utxos.len()
-        );
     }
 
     pub fn get_utxo_for_address(
         &self,
         address: &Address,
-    ) -> Result<Vec<serde_json::Value>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<ListUnspentResult>, Box<dyn std::error::Error>> {
         let min_conf = 1;
         let max_conf = 9999999;
         let include_unsafe = true;
         let query_options = json!({});
 
-        let unspent_utxos: Vec<serde_json::Value> = self.client().call(
+        let unspent_utxos: Vec<ListUnspentResult> = self.client().call(
             "listunspent",
             &[
                 json!(min_conf),
@@ -334,13 +297,25 @@ impl BTCTestContext {
         // Verify UTXO belongs to the address and has the correct amount
         for utxo in unspent_utxos.iter() {
             assert_eq!(
-                utxo["address"].as_str().unwrap(),
+                utxo.address,
                 address.to_string(),
                 "UTXO doesn't belong to the address"
             );
         }
 
         Ok(unspent_utxos)
+    }
+
+    pub fn assert_utxos_for_address(&self, address: Address, number_of_utxos: usize) {
+        let unspent_utxos: Vec<ListUnspentResult> = self.get_utxo_for_address(&address).unwrap();
+
+        assert!(
+            unspent_utxos.len() == number_of_utxos,
+            "Expected {} UTXOs for address {}, but found {}",
+            number_of_utxos,
+            address,
+            unspent_utxos.len()
+        );
     }
 
     pub const fn get_alice_legacy(&self) -> &UserInfo {
