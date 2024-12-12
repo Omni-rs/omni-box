@@ -31,7 +31,7 @@ impl OmniBox {
         let mut chains = HashMap::new();
         let options = options.unwrap_or_default();
 
-        println!("Creating OmniBox with options: {:#?}", options);
+        println!("Starting OmniBox with options: {:#?}", options);
 
         for module in options.modules {
             // Create a default configuration for this module / chain / network
@@ -50,6 +50,7 @@ impl OmniBox {
         let deployer_account = get_user_account_info_from_file(None).unwrap();
         let friendly_client =
             FriendlyNearJsonRpcClient::new(options.default_near_network, deployer_account.clone());
+        println!("Using deployer account: {:#?}", deployer_account.account_id);
 
         // Create the OmniBox instance, each context will be initialized with the default configuration
         let omnibox = Self {
