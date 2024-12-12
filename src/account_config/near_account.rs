@@ -1,7 +1,7 @@
 use near_crypto::{PublicKey, SecretKey};
 use near_sdk::AccountId;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NearAccount {
     pub account_id: AccountId,
     pub private_key: SecretKey,

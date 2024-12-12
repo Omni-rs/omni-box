@@ -16,8 +16,11 @@ OmniBox contains a set of utilities and encapsulates multiple test environments 
 - Account creation
 - Easy compile and deploy to testnet
 - Utilities for account derivation and signature construction
+- Utilities to interact with the NEAR contract via a friendly NEAR JSON RPC client
 - Utilities to assert transaction propagations
 - Utilities to interact easily with your deployed contracts
+- Automatic compilation and deployment
+- Automatic contract changes detection to avoid redeploy the same contract
 
 ## The OmniBox Way
 

@@ -1,6 +1,6 @@
 [package]
 name = "omni-box"
-version = "0.1.0"
+version = "0.1.2"
 authors = ["Proximity Labs Limited"]
 license = "Apache-2.0"
 edition = "2021"
@@ -24,7 +24,7 @@ near-crypto = { version = "0.25.0" }
 near-jsonrpc-client = { version = "0.12.0" }
 near-jsonrpc-primitives = "0.25.0"
 near-sdk = { version = "5.3.0", features = ["schemars"] }
-
+omni-transaction = "0.1.1"
 # bitcoin
 bitcoin = { version = "0.32.0", default-features = false, features = [
     "std",

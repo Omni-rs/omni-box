@@ -1,4 +1,4 @@
-mod btc;
+pub mod btc;
 mod evm;
 mod near;
 
