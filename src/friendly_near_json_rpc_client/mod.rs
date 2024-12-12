@@ -7,19 +7,21 @@ use near_jsonrpc_client::{methods::query::RpcQueryRequest, JsonRpcClient};
 use near_jsonrpc_primitives::types::query::QueryResponseKind;
 use near_primitives::action::{Action, DeployContractAction};
 use near_primitives::transaction::{Transaction, TransactionV0};
-use near_primitives::types::BlockReference;
+use near_primitives::types::{BlockReference, Finality, FunctionArgs};
 use near_primitives::views::TxExecutionStatus;
 use near_primitives::{hash::CryptoHash, views::QueryRequest};
 use near_sdk::AccountId;
+use std::error::Error;
 use std::time::{Duration, Instant};
 
 // local modules
 pub mod near_network_config;
+pub mod parser;
 
 // import local modules
-use near_network_config::{get_rpc_url, NearNetworkConfig};
-
 use crate::NearAccount;
+use near_network_config::{get_rpc_url, NearNetworkConfig};
+use parser::ParseResult;
 
 pub struct FriendlyNearJsonRpcClient {
     client: JsonRpcClient,
@@ -172,5 +174,36 @@ impl FriendlyNearJsonRpcClient {
             }
             _ => panic!("Failed to extract current nonce"),
         }
+    }
+
+    // Function to call a contract with a generic return type
+    pub async fn call_contract<T>(
+        &self,
+        method_name: &str,
+        args: serde_json::Value,
+    ) -> Result<T, Box<dyn Error>>
+    where
+        T: ParseResult,
+    {
+        let account_id = self.account_config.account_id.clone();
+
+        let request = RpcQueryRequest {
+            block_reference: BlockReference::Finality(Finality::Final),
+            request: QueryRequest::CallFunction {
+                account_id,
+                method_name: method_name.to_string(),
+                args: FunctionArgs::from(args.to_string().into_bytes()),
+            },
+        };
+
+        let response = self.client.call(request).await?;
+
+        // Parse result
+        if let QueryResponseKind::CallResult(call_result) = response.kind {
+            let result_str = String::from_utf8(call_result.result.clone())?;
+            return T::parse(result_str);
+        }
+
+        Err("Failed to parse contract call result".into())
     }
 }

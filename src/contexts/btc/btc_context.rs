@@ -11,7 +11,7 @@ use std::str::FromStr as _;
 
 use super::types::{ListUnspentResult, ScanTxOutSetResult, UnspentOutput};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct UserInfo {
     pub address: Address,
     pub script_pubkey: ScriptBuf,

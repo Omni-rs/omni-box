@@ -49,6 +49,7 @@ impl<'de> Deserialize<'de> for UnspentOutput {
         struct UnspentOutputHelper {
             txid: String,
             vout: u32,
+            #[serde(rename = "scriptPubKey")]
             script_pubkey: String,
             desc: String,
             amount: f64,
