@@ -20,6 +20,7 @@ OmniBox contains a set of utilities and encapsulates multiple test environments 
 - Utilities to assert transaction propagations
 - Utilities to interact easily with your deployed contracts
 - Automatic compilation and deployment
+- Automatic contract changes detection to avoid redeploy the same contract
 
 ## The OmniBox Way
 

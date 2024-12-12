@@ -1,5 +1,3 @@
-use serde_json::json;
-
 use crate::{
     account_config::get_user_account_info_from_file,
     chain_config::ChainConfig,
@@ -9,6 +7,11 @@ use crate::{
     omni_box_options::OmniBoxOptions,
     NearAccount,
 };
+use serde_json::json;
+use sha3::{Digest, Sha3_256};
+use std::fs::{self, OpenOptions};
+use std::io::prelude::*;
+use std::path::Path;
 use std::{collections::HashMap, error::Error};
 
 pub struct OmniBox {
@@ -80,15 +83,32 @@ impl OmniBox {
         &self,
         path: &'static str,
     ) -> Result<(), Box<dyn std::error::Error>> {
+        let cache_path = "cache/contract.json";
+
         // Compile the contract
         println!("Compiling contract");
 
         let contract_wasm = near_workspaces::compile_project(path).await?;
 
+        // Calculate the current hash of the contract
+        let current_hash = self.calculate_hash_from_bytes(&contract_wasm);
+
+        // Read the cached hash
+        let cached_hash = self.read_hash_from_cache(cache_path).unwrap_or_default();
+
+        // Check if the hash has changed
+        if current_hash == cached_hash {
+            println!("Contract has not changed, skipping deployment.");
+            return Ok(());
+        }
+
         // Deploy the contract
         self.friendly_near_json_rpc_client
             .deploy_contract(contract_wasm)
             .await?;
+
+        // Update the cache with the new hash
+        self.write_hash_to_cache(cache_path, &current_hash)?;
 
         println!("Contract deployed");
 
@@ -102,5 +122,40 @@ impl OmniBox {
         self.friendly_near_json_rpc_client
             .call_contract_with_account_id::<u128>(MPC_SIGNER, method_name, args)
             .await
+    }
+
+    // Caching capabilities
+    fn calculate_hash_from_bytes(&self, bytes: &[u8]) -> String {
+        let mut hasher = Sha3_256::new();
+        hasher.update(bytes);
+        let hash = hasher.finalize();
+        format!("{:x}", hash)
+    }
+
+    fn write_hash_to_cache<P: AsRef<Path>>(
+        &self,
+        cache_path: P,
+        hash: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let cache_path = cache_path.as_ref();
+        if let Some(parent) = cache_path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(cache_path)?;
+        writeln!(file, "{}", hash)?;
+        Ok(())
+    }
+
+    fn read_hash_from_cache<P: AsRef<Path>>(
+        &self,
+        cache_path: P,
+    ) -> Result<String, Box<dyn std::error::Error>> {
+        let hash = std::fs::read_to_string(cache_path)?;
+        Ok(hash.trim().to_string())
     }
 }
