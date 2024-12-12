@@ -136,7 +136,7 @@ impl FriendlyNearJsonRpcClient {
 
         // Parse result
         if let QueryResponseKind::CallResult(call_result) = response.kind {
-            let result_str = String::from_utf8(call_result.result.clone())?;
+            let result_str = String::from_utf8(call_result.result)?;
             return T::parse(result_str);
         }
 
@@ -165,7 +165,7 @@ impl FriendlyNearJsonRpcClient {
 
         // Parse result
         if let QueryResponseKind::CallResult(call_result) = response.kind {
-            let result_str = String::from_utf8(call_result.result.clone())?;
+            let result_str = String::from_utf8(call_result.result)?;
             return T::parse(result_str);
         }
 

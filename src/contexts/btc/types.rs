@@ -61,7 +61,7 @@ impl<'de> Deserialize<'de> for UnspentOutput {
         let txid = Txid(tx_hash);
         let amount = Amount::from_sat((helper.amount * 100_000_000.0) as u64);
 
-        Ok(UnspentOutput {
+        Ok(Self {
             txid,
             vout: helper.vout,
             script_pubkey: helper.script_pubkey,

@@ -6,7 +6,7 @@ pub trait ParseResult: Sized {
 
 impl ParseResult for Vec<u8> {
     fn parse(result_str: String) -> Result<Self, Box<dyn Error>> {
-        let result_bytes: Vec<u8> = result_str
+        let result_bytes: Self = result_str
             .trim_matches(|c| c == '[' || c == ']') // Eliminar corchetes
             .split(',') // Dividir por comas
             .map(|s| s.trim().parse::<u8>().unwrap()) // Convertir cada parte a u8
@@ -17,7 +17,7 @@ impl ParseResult for Vec<u8> {
 
 impl ParseResult for u128 {
     fn parse(result_str: String) -> Result<Self, Box<dyn Error>> {
-        let value = result_str.trim_matches('"').parse::<u128>()?;
+        let value = result_str.trim_matches('"').parse::<Self>()?;
         Ok(value)
     }
 }
