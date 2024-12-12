@@ -8,7 +8,7 @@ pub mod near_account;
 
 use near_account::NearAccount;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Account {
     Near(NearAccount),
     // TODO: Add Ethereum y Bitcoin

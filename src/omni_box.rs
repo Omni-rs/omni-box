@@ -1,15 +1,15 @@
+use serde_json::json;
+
 use crate::{
     account_config::get_user_account_info_from_file,
     chain_config::ChainConfig,
     contexts::{BTCTestContext, EVMTestContext, NearTestContext},
-    friendly_near_json_rpc_client::{
-        near_network_config::NearNetworkConfig, FriendlyNearJsonRpcClient,
-    },
+    friendly_near_json_rpc_client::FriendlyNearJsonRpcClient,
     network::Network,
     omni_box_options::OmniBoxOptions,
     NearAccount,
 };
-use std::collections::HashMap;
+use std::{collections::HashMap, error::Error};
 
 pub struct OmniBox {
     chains: HashMap<Network, ChainConfig>,
@@ -17,6 +17,7 @@ pub struct OmniBox {
     pub near_context: NearTestContext,
     pub evm_context: EVMTestContext,
     pub deployer_account: NearAccount,
+    pub friendly_near_json_rpc_client: FriendlyNearJsonRpcClient,
 }
 
 impl OmniBox {
@@ -45,6 +46,8 @@ impl OmniBox {
 
         // Get the deployer account
         let deployer_account = get_user_account_info_from_file(None).unwrap();
+        let friendly_client =
+            FriendlyNearJsonRpcClient::new(options.default_near_network, deployer_account.clone());
 
         // Create the OmniBox instance, each context will be initialized with the default configuration
         let omnibox = Self {
@@ -53,11 +56,12 @@ impl OmniBox {
             near_context: NearTestContext::new().await,
             evm_context: EVMTestContext::default(),
             deployer_account,
+            friendly_near_json_rpc_client: friendly_client,
         };
 
         // Auto compile and deploy
         omnibox
-            .compile_and_deploy_contract(options.path, options.default_near_network)
+            .compile_and_deploy_contract(options.path)
             .await
             .unwrap();
 
@@ -72,22 +76,29 @@ impl OmniBox {
     async fn compile_and_deploy_contract(
         &self,
         path: &'static str,
-        network: NearNetworkConfig,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // Compile the contract
         println!("Compiling contract");
 
         let contract_wasm = near_workspaces::compile_project(path).await?;
 
-        let config_account = get_user_account_info_from_file(None).unwrap();
-
-        let friendly_client = FriendlyNearJsonRpcClient::new(network, config_account);
-
         // Deploy the contract
-        friendly_client.deploy_contract(contract_wasm).await?;
+        self.friendly_near_json_rpc_client
+            .deploy_contract(contract_wasm)
+            .await?;
 
         println!("Contract deployed");
 
         Ok(())
+    }
+
+    // TODO: pass v1.signer-prod.testnet as the contract we want to call
+    pub async fn get_experimental_signature_deposit(&self) -> Result<u128, Box<dyn Error>> {
+        let method_name = "experimental_signature_deposit";
+        let args = json!({});
+
+        self.friendly_near_json_rpc_client
+            .call_contract::<u128>(method_name, args)
+            .await
     }
 }
