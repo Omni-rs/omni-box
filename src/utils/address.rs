@@ -199,6 +199,27 @@ fn public_key_to_hex(public_key: AffinePoint) -> String {
     hex::encode(encoded_point_bytes)
 }
 
+/// Converts a public key to a compressed public key
+pub fn get_compressed_bitcoin_pubkey(derived_address: &DerivedAddress) -> Vec<u8> {
+    let derived_public_key_bytes = derived_address.public_key.to_encoded_point(false);
+    let derived_public_key_bytes_array = derived_public_key_bytes.as_bytes();
+
+    let secp_pubkey = bitcoin::secp256k1::PublicKey::from_slice(derived_public_key_bytes_array)
+        .expect("Invalid public key.");
+
+    secp_pubkey.serialize().to_vec()
+}
+
+pub fn get_uncompressed_bitcoin_pubkey(derived_address: &DerivedAddress) -> Vec<u8> {
+    let derived_public_key_bytes = derived_address.public_key.to_encoded_point(false); // no comprimida
+    let derived_public_key_bytes_array = derived_public_key_bytes.as_bytes();
+
+    let secp_pubkey = bitcoin::secp256k1::PublicKey::from_slice(derived_public_key_bytes_array)
+        .expect("Invalid public key");
+
+    secp_pubkey.serialize_uncompressed().to_vec()
+}
+
 /// Converts a public key to a Bitcoin address using P2PKH (Legacy)
 fn public_key_to_btc_address(public_key: AffinePoint, network: &str) -> String {
     let encoded_point = public_key.to_encoded_point(false);

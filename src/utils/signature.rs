@@ -82,3 +82,23 @@ pub fn extract_multiple_signatures(
 
     Ok(signatures)
 }
+
+pub fn extract_signed_transaction(response: &RpcTransactionResponse) -> Result<String, String> {
+    if let Some(near_primitives::views::FinalExecutionOutcomeViewEnum::FinalExecutionOutcome(
+        final_outcome,
+    )) = &response.final_execution_outcome
+    {
+        if let FinalExecutionStatus::SuccessValue(success_value) = &final_outcome.status {
+            // Convert the success value to a string
+            let success_value_str =
+                String::from_utf8(success_value.clone()).map_err(|e| e.to_string())?;
+
+            // Remove the quotes from the string
+            let hex_tx = success_value_str.trim_matches('"');
+
+            return Ok(hex_tx.to_string());
+        }
+    }
+
+    Err("Failed to extract signed transaction".to_string())
+}
