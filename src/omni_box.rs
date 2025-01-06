@@ -5,7 +5,13 @@ use crate::{
     friendly_near_json_rpc_client::FriendlyNearJsonRpcClient,
     network::Network,
     omni_box_options::OmniBoxOptions,
+    utils::address,
     NearAccount,
+};
+use alloy::{
+    hex::FromHex,
+    primitives::{utils::parse_units, Address, U256},
+    providers::ext::AnvilApi,
 };
 use serde_json::json;
 use sha3::{Digest, Sha3_256};
@@ -61,9 +67,54 @@ impl OmniBox {
             btc_context: BTCTestContext::default(),
             near_context: NearTestContext::new().await,
             evm_context: EVMTestContext::default(),
-            deployer_account,
+            deployer_account: deployer_account.clone(),
             friendly_near_json_rpc_client: friendly_client,
         };
+
+        // Calculate derived addresses for Bitcoin legacy
+        let legacy_derived_address = address::get_derived_address_for_btc_legacy(
+            &deployer_account.account_id,
+            options.btc_path,
+        );
+
+        println!(
+            "Legacy BTC Derived Address: {:?}",
+            legacy_derived_address.address
+        );
+
+        // Calculate derived addresses for Bitcoin Segwit
+        let segwit_derived_address =
+            address::get_derived_address_for_segwit(&deployer_account.account_id, options.btc_path);
+
+        println!(
+            "Segwit BTC Derived Address: {:?}",
+            segwit_derived_address.address
+        );
+
+        // Calculate default derived addresses EVM
+        let evm_derived_address =
+            address::get_derived_address_for_evm(&deployer_account.account_id, &options.evm_path);
+
+        println!("EVM Derived Address: {:?}", evm_derived_address.address);
+
+        // Give initial funds to the deployer account in EVM
+        let mocked_balance: U256 = match parse_units("100.0", "ether") {
+            Ok(units) => units.into(),
+            Err(e) => {
+                eprintln!("Failed to parse units: {}", e);
+                return omnibox;
+            }
+        };
+
+        omnibox
+            .evm_context
+            .provider
+            .anvil_set_balance(
+                Address::from_hex(evm_derived_address.address).unwrap(),
+                mocked_balance,
+            )
+            .await
+            .unwrap();
 
         // Auto compile and deploy
         omnibox

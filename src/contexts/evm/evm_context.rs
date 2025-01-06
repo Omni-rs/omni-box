@@ -27,9 +27,20 @@ type Provider = FillProvider<
     Ethereum,
 >;
 
+type DefaultProvider = FillProvider<
+    JoinFill<
+        Identity,
+        JoinFill<GasFiller, JoinFill<BlobGasFiller, JoinFill<NonceFiller, ChainIdFiller>>>,
+    >,
+    RootProvider<Http<Client>>,
+    Http<Client>,
+    Ethereum,
+>;
+
 #[derive(Debug)]
 pub struct EVMTestContext {
     pub anvil: AnvilInstance,
+    pub provider: DefaultProvider,
     pub alice: EthereumWallet,
     pub bob: EthereumWallet,
 }
@@ -49,7 +60,16 @@ impl EVMTestContext {
         let alice = EthereumWallet::from(alice_signer);
         let bob = EthereumWallet::from(bob_signer);
 
-        Self { anvil, alice, bob }
+        let provider = ProviderBuilder::new()
+            .with_recommended_fillers()
+            .on_http(anvil.endpoint_url());
+
+        Self {
+            anvil,
+            alice,
+            bob,
+            provider,
+        }
     }
 
     pub const fn alice(&self) -> &EthereumWallet {
