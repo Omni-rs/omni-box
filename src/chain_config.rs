@@ -27,7 +27,7 @@ pub struct ChainOverrides {
 impl ChainConfig {
     pub fn default(network: Network) -> Self {
         match network {
-            Network::Ethereum => Self {
+            Network::EVM => Self {
                 node_url: "http://localhost:8545".to_string(),
                 node_instance: None,
                 accounts: vec![None],

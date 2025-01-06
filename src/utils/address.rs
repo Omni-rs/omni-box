@@ -13,6 +13,7 @@ use k256::{
 use near_sdk::AccountId;
 use ripemd::Ripemd160;
 use sha3::Sha3_256;
+use tiny_keccak::{Hasher, Keccak};
 
 // Types
 pub type PublicKey = <Secp256k1 as CurveArithmetic>::AffinePoint;
@@ -240,10 +241,16 @@ pub fn public_key_to_evm_address(public_key: AffinePoint) -> String {
     let encoded_point = public_key.to_encoded_point(false);
     let public_key_bytes = encoded_point.as_bytes();
 
+    // Exclude the first byte (0x04 prefix) and take only the X part
     let x_only = &public_key_bytes[1..];
 
-    let hash = Sha3_256::digest(x_only);
+    // Calculate the hash Keccak-256
+    let mut keccak = Keccak::v256();
+    let mut hash = [0u8; 32];
+    keccak.update(x_only);
+    keccak.finalize(&mut hash);
 
+    // Take the last 20 bytes
     let eth_address_bytes = &hash[12..];
 
     format!("0x{}", hex::encode(eth_address_bytes))
@@ -335,7 +342,7 @@ mod tests {
 
         let evm_address = public_key_to_evm_address(derived_public_key);
 
-        assert_eq!(evm_address, "0xc1aeb47316d5594449b65fb366965b8c81ebd664");
+        assert_eq!(evm_address, "0xd8d25820c9b9e2aa9cce55504355e500efcce715");
         assert_eq!(derived_public_key_hex, "04e612e7650febebc50b448bf790f6bdd70a8a6ce3b111a1d7e72c87afe84be776e36226e3f89de1ba3cbb62c0f3fc05bffae672c9c59d5fa8a4737b6547c64eb7");
     }
 }

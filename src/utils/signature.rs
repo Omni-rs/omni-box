@@ -1,5 +1,6 @@
 use bitcoin::secp256k1::ecdsa::Signature;
 use bitcoin::secp256k1::{self};
+use hex::FromHex;
 use near_jsonrpc_client::methods::tx::RpcTransactionResponse;
 use near_primitives::views::{ExecutionStatusView, FinalExecutionStatus};
 
@@ -83,7 +84,7 @@ pub fn extract_multiple_signatures(
     Ok(signatures)
 }
 
-pub fn extract_signed_transaction(response: &RpcTransactionResponse) -> Result<String, String> {
+pub fn extract_signed_transaction(response: &RpcTransactionResponse) -> Result<Vec<u8>, String> {
     if let Some(near_primitives::views::FinalExecutionOutcomeViewEnum::FinalExecutionOutcome(
         final_outcome,
     )) = &response.final_execution_outcome
@@ -93,10 +94,37 @@ pub fn extract_signed_transaction(response: &RpcTransactionResponse) -> Result<S
             let success_value_str =
                 String::from_utf8(success_value.clone()).map_err(|e| e.to_string())?;
 
-            // Remove the quotes from the string
-            let hex_tx = success_value_str.trim_matches('"');
+            let trimmed_value = success_value_str.trim_matches('"');
 
-            return Ok(hex_tx.to_string());
+            let parsed_bytes =
+                Vec::from_hex(trimmed_value).map_err(|e| format!("Failed to decode hex: {}", e))?;
+
+            return Ok(parsed_bytes);
+        }
+    }
+
+    Err("Failed to extract signed transaction".to_string())
+}
+
+pub fn extract_payload(response: &RpcTransactionResponse) -> Result<[u8; 32], String> {
+    if let Some(near_primitives::views::FinalExecutionOutcomeViewEnum::FinalExecutionOutcome(
+        final_outcome,
+    )) = &response.final_execution_outcome
+    {
+        if let FinalExecutionStatus::SuccessValue(success_value) = &final_outcome.status {
+            // Convert the success value to a string
+            let success_value_str =
+                String::from_utf8(success_value.clone()).map_err(|e| e.to_string())?;
+
+            let parsed_bytes: Vec<u8> = serde_json::from_str(&success_value_str)
+                .map_err(|e| format!("Failed to parse JSON: {}", e))?;
+
+            // Ensure the parsed bytes have the correct length
+            let fixed_array: [u8; 32] = parsed_bytes
+                .try_into()
+                .map_err(|_| "Parsed bytes are not 32 bytes long".to_string())?;
+
+            return Ok(fixed_array);
         }
     }
 
