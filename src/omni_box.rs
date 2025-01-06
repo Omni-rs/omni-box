@@ -93,7 +93,7 @@ impl OmniBox {
 
         // Calculate default derived addresses EVM
         let evm_derived_address =
-            address::get_derived_address_for_evm(&deployer_account.account_id, &options.evm_path);
+            address::get_derived_address_for_evm(&deployer_account.account_id, options.evm_path);
 
         println!("EVM Derived Address: {:?}", evm_derived_address.address);
 

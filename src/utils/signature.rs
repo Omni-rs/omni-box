@@ -96,8 +96,8 @@ pub fn extract_signed_transaction(response: &RpcTransactionResponse) -> Result<V
 
             let trimmed_value = success_value_str.trim_matches('"');
 
-            let parsed_bytes = Vec::from_hex(&trimmed_value)
-                .map_err(|e| format!("Failed to decode hex: {}", e))?;
+            let parsed_bytes =
+                Vec::from_hex(trimmed_value).map_err(|e| format!("Failed to decode hex: {}", e))?;
 
             return Ok(parsed_bytes);
         }
