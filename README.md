@@ -4,6 +4,8 @@ An opinionated testing environment for chain abstracted applications.
 
 OmniBox contains a set of utilities and encapsulates multiple test environments into a unified framework that makes developing chain abstracted applications easier than ever.
 
+If you want to see OmniBox in action, you can go directly into the [examples] repository.
+
 [![Join our Telegram chat for support and community discussions.][telegram-badge]][telegram-url]
 
 [telegram-badge]: https://img.shields.io/endpoint?color=neon&style=for-the-badge&url=https://tg.sumanjay.workers.dev/chain_abstraction
@@ -51,7 +53,7 @@ Add dependency
 
 ```toml
 [dev_dependencies]
-omni-box = "0.0.1"
+omni-box = "0.1.5"
 ```
 
 or via cargo 
@@ -152,3 +154,4 @@ Stay tuned for more detailed examples and features in future updates.
 [Bitcoin core]: https://bitcoin.org/en/download
 [Anvil]: https://github.com/foundry-rs/foundry/tree/master/crates/anvil
 [Omni-transaction-rs]: https://github.com/near/omni-transaction-rs
+[examples]: https://github.com/Omni-rs/examples
