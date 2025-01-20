@@ -1,3 +1,4 @@
+//! A friendly way to interact with the NEAR blockchain using the NEAR JSON RPC client
 use near_crypto::{InMemorySigner, PublicKey};
 use near_jsonrpc_client::methods;
 use near_jsonrpc_client::methods::send_tx::RpcSendTransactionRequest;
@@ -17,13 +18,14 @@ use std::time::{Duration, Instant};
 
 // local modules
 pub mod near_network_config;
-pub mod parser;
+mod parser;
 
 // import local modules
 use crate::NearAccount;
 use near_network_config::{get_rpc_url, NearNetworkConfig};
 use parser::ParseResult;
 
+/// Wrapper around the Near JsonRpcClient that provides a more user-friendly interface
 pub struct FriendlyNearJsonRpcClient {
     client: JsonRpcClient,
     account_config: NearAccount,
@@ -83,6 +85,7 @@ impl FriendlyNearJsonRpcClient {
         self.send_transaction_request(request).await
     }
 
+    /// Send a transaction request to the NEAR blockchain
     pub async fn send_transaction_request(
         &self,
         request: RpcSendTransactionRequest,
@@ -107,6 +110,7 @@ impl FriendlyNearJsonRpcClient {
         }
     }
 
+    /// Get the NEAR RPC client instance
     pub fn get_near_rpc_client(network: NearNetworkConfig) -> JsonRpcClient {
         let rpc_url = get_rpc_url(network);
         JsonRpcClient::connect(rpc_url)
@@ -143,6 +147,7 @@ impl FriendlyNearJsonRpcClient {
         Err("Failed to parse contract call result".into())
     }
 
+    /// Function to call a contract with a generic return type and a specific account id
     pub async fn call_contract_with_account_id<T>(
         &self,
         account_id: &str,
@@ -172,6 +177,7 @@ impl FriendlyNearJsonRpcClient {
         Err("Failed to parse contract call result".into())
     }
 
+    /// Send a function call action to the NEAR blockchain
     pub async fn send_action(
         &self,
         action: FunctionCallAction,

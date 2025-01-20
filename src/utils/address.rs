@@ -1,3 +1,4 @@
+//! Utility functions to derive addresses for different networks
 use bitcoin::hashes::{ripemd160, Hash};
 use bitcoin::opcodes::all::{OP_CHECKSIG, OP_DUP, OP_EQUALVERIFY, OP_HASH160};
 use bitcoin::script::Builder;
@@ -18,7 +19,7 @@ use tiny_keccak::{Hasher, Keccak};
 // Types
 pub type PublicKey = <Secp256k1 as CurveArithmetic>::AffinePoint;
 
-pub trait ScalarExt: Sized {
+trait ScalarExt: Sized {
     fn from_bytes(bytes: [u8; 32]) -> Option<Self>;
     fn from_non_biased(bytes: [u8; 32]) -> Self;
 }
@@ -45,6 +46,7 @@ impl ScalarExt for Scalar {
 // near-mpc-recovery with key derivation protocol vX.Y.Z.
 const EPSILON_DERIVATION_PREFIX: &str = "near-mpc-recovery v0.1.0 epsilon derivation:";
 
+/// Derives an epsilon value from a given predecessor_id and path
 pub fn derive_epsilon(predecessor_id: &AccountId, path: &str) -> Scalar {
     let derivation_path = format!("{EPSILON_DERIVATION_PREFIX}{},{}", predecessor_id, path);
     let mut hasher = Sha3_256::new();
@@ -53,17 +55,26 @@ pub fn derive_epsilon(predecessor_id: &AccountId, path: &str) -> Scalar {
     Scalar::from_non_biased(hash)
 }
 
+/// Derives a key from a given public key and epsilon value
 pub fn derive_key(public_key: PublicKey, epsilon: Scalar) -> PublicKey {
     (<Secp256k1 as CurveArithmetic>::ProjectivePoint::GENERATOR * epsilon + public_key).to_affine()
 }
 
 const ROOT_PUBLIC_KEY: &str = "secp256k1:4NfTiv3UsGahebgTaHyD9vF8KYKMBnfd6kh94mK6xv8fGBiJB8TBtFMP5WWXz6B89Ac1fbpzPwAvoyQebemHFwx3";
 
+/// Contains the derived address as string and the public key
+/// that was used to derive the address
 pub struct DerivedAddress {
     pub address: String,
     pub public_key: PublicKey,
 }
 
+/// Derives a Segwit address for a given path and predecessor_id
+///
+/// Example:
+/// ```
+/// let derived_address = get_derived_address_for_segwit("omnitester.testnet".parse().unwrap(), "bitcoin-1")
+/// ```
 pub fn get_derived_address_for_segwit(predecessor_id: &AccountId, path: &str) -> DerivedAddress {
     let epsilon = derive_epsilon(predecessor_id, path);
     let public_key = convert_string_to_public_key(ROOT_PUBLIC_KEY).unwrap();
@@ -75,6 +86,12 @@ pub fn get_derived_address_for_segwit(predecessor_id: &AccountId, path: &str) ->
     }
 }
 
+/// Derives a Legacy address for a given path and predecessor_id
+///
+/// Example:
+/// ```
+/// let derived_address = get_derived_address_for_btc_legacy("omnitester.testnet".parse().unwrap(), "bitcoin-1")
+/// ```
 pub fn get_derived_address_for_btc_legacy(
     predecessor_id: &AccountId,
     path: &str,
@@ -90,6 +107,12 @@ pub fn get_derived_address_for_btc_legacy(
     }
 }
 
+/// Derives an EVM address for a given path and predecessor_id
+///
+/// Example:
+/// ```
+/// let derived_address = get_derived_address_for_evm("omnitester.testnet".parse().unwrap(), "ethereum-1")
+/// ```
 pub fn get_derived_address_for_evm(predecessor_id: &AccountId, path: &str) -> DerivedAddress {
     let epsilon = derive_epsilon(predecessor_id, path);
     let public_key = convert_string_to_public_key(ROOT_PUBLIC_KEY).unwrap();
@@ -102,6 +125,7 @@ pub fn get_derived_address_for_evm(predecessor_id: &AccountId, path: &str) -> De
     }
 }
 
+/// Obtains the public key bytes from a given derived address
 pub fn get_public_key_as_bytes(derived_address: &DerivedAddress) -> Vec<u8> {
     let derived_public_key_bytes = derived_address.public_key.to_encoded_point(false); // Ensure this method exists
     let derived_public_key_bytes_array = derived_public_key_bytes.as_bytes();
@@ -112,7 +136,7 @@ pub fn get_public_key_as_bytes(derived_address: &DerivedAddress) -> Vec<u8> {
     bitcoin_pubkey.to_bytes().to_vec()
 }
 
-/// Obtains the public key hash from a derived address
+/// Obtains the public key hash from a given derived address
 pub fn get_public_key_hash(derived_address: &DerivedAddress) -> Vec<u8> {
     // Create the public key from the derived address
     let derived_public_key_bytes = derived_address.public_key.to_encoded_point(false); // Ensure this method exists
@@ -128,6 +152,7 @@ pub fn get_public_key_hash(derived_address: &DerivedAddress) -> Vec<u8> {
     wpkh.to_byte_array().to_vec()
 }
 
+/// Obtains the script_pub_key from a derived address
 pub fn get_script_pub_key(derived_address: &DerivedAddress) -> Vec<u8> {
     let derived_public_key_bytes = derived_address.public_key.to_encoded_point(false); // Ensure this method exists
     let derived_public_key_bytes_array = derived_public_key_bytes.as_bytes();
@@ -148,6 +173,7 @@ pub fn get_script_pub_key(derived_address: &DerivedAddress) -> Vec<u8> {
     near_contract_script_pubkey.as_bytes().to_vec()
 }
 
+/// Obtains the script_sig from a derived address and a signature
 pub fn build_script_sig_as_bytes(
     derived_address: DerivedAddress,
     signature: bitcoin::ecdsa::Signature,
@@ -211,6 +237,7 @@ pub fn get_compressed_bitcoin_pubkey(derived_address: &DerivedAddress) -> Vec<u8
     secp_pubkey.serialize().to_vec()
 }
 
+/// Converts a public key to an uncompressed public key
 pub fn get_uncompressed_bitcoin_pubkey(derived_address: &DerivedAddress) -> Vec<u8> {
     let derived_public_key_bytes = derived_address.public_key.to_encoded_point(false); // no comprimida
     let derived_public_key_bytes_array = derived_public_key_bytes.as_bytes();
@@ -237,6 +264,7 @@ fn public_key_to_btc_address(public_key: AffinePoint, network: &str) -> String {
     base58check_encode(&address_bytes)
 }
 
+/// Converts a public key to an Ethereum address
 pub fn public_key_to_evm_address(public_key: AffinePoint) -> String {
     let encoded_point = public_key.to_encoded_point(false);
     let public_key_bytes = encoded_point.as_bytes();

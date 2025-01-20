@@ -1,9 +1,16 @@
+//! Utility functions for working with signatures
 use bitcoin::secp256k1::ecdsa::Signature;
 use bitcoin::secp256k1::{self};
 use hex::FromHex;
 use near_jsonrpc_client::methods::tx::RpcTransactionResponse;
 use near_primitives::views::{ExecutionStatusView, FinalExecutionStatus};
 
+/// Utility function to extract the big_r and s values from a transaction response
+///
+/// Example:
+/// ```
+/// let (big_r, s) = extract_big_r_and_s(&response).unwrap();
+/// ```
 pub fn extract_big_r_and_s(response: &RpcTransactionResponse) -> Result<(String, String), String> {
     if let Some(near_primitives::views::FinalExecutionOutcomeViewEnum::FinalExecutionOutcome(
         final_outcome,
@@ -27,6 +34,12 @@ pub fn extract_big_r_and_s(response: &RpcTransactionResponse) -> Result<(String,
     Err("Failed to extract big_r and s".to_string())
 }
 
+/// Create a signature from the big_r and s values
+///
+/// Example:
+/// ```
+/// let signature = create_signature(&big_r, &s).unwrap();
+/// ```
 pub fn create_signature(big_r_hex: &str, s_hex: &str) -> Result<Signature, secp256k1::Error> {
     // Convert hex strings to byte arrays
     let big_r_bytes = hex::decode(big_r_hex).unwrap();
@@ -51,6 +64,12 @@ pub fn create_signature(big_r_hex: &str, s_hex: &str) -> Result<Signature, secp2
     Ok(signature)
 }
 
+/// Extract multiple signatures from a transaction response
+///
+/// Example:
+/// ```
+/// let signatures = extract_multiple_signatures(&response).unwrap();
+/// ```
 pub fn extract_multiple_signatures(
     response: &RpcTransactionResponse,
 ) -> Result<Vec<(String, String)>, String> {
@@ -84,6 +103,12 @@ pub fn extract_multiple_signatures(
     Ok(signatures)
 }
 
+/// Extract a signed transaction from a transaction response
+///
+/// Example:
+/// ```
+/// let signed_transaction = extract_signed_transaction(&response).unwrap();
+/// ```
 pub fn extract_signed_transaction(response: &RpcTransactionResponse) -> Result<Vec<u8>, String> {
     if let Some(near_primitives::views::FinalExecutionOutcomeViewEnum::FinalExecutionOutcome(
         final_outcome,
@@ -106,6 +131,12 @@ pub fn extract_signed_transaction(response: &RpcTransactionResponse) -> Result<V
     Err("Failed to extract signed transaction".to_string())
 }
 
+/// Extract a payload from a transaction response
+///
+/// Example:
+/// ```
+/// let payload = extract_payload(&response).unwrap();
+/// ```
 pub fn extract_payload(response: &RpcTransactionResponse) -> Result<[u8; 32], String> {
     if let Some(near_primitives::views::FinalExecutionOutcomeViewEnum::FinalExecutionOutcome(
         final_outcome,

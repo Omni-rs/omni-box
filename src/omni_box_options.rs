@@ -1,4 +1,7 @@
-use crate::{chain_config::ChainOverrides, network::Network, NearNetworkConfig};
+use crate::{
+    chain_config::ChainOverrides,
+    friendly_near_json_rpc_client::near_network_config::NearNetworkConfig, network::Network,
+};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
