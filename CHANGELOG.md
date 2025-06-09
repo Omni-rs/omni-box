@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7](https://github.com/Omni-rs/omni-box/compare/v0.1.6...v0.1.7) - 2025-06-09
+
+### Added
+
+- update omni-tx-rs ([#9](https://github.com/Omni-rs/omni-box/pull/9))
+
 ## [0.1.6](https://github.com/Omni-rs/omni-box/compare/v0.1.5...v0.1.6) - 2025-06-09
 
 ### Added
