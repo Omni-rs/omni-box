@@ -167,12 +167,7 @@ impl OmniBox {
     }
 
     pub async fn get_experimental_signature_deposit(&self) -> Result<u128, Box<dyn Error>> {
-        let method_name = "experimental_signature_deposit";
-        let args = json!({});
-
-        self.friendly_near_json_rpc_client
-            .call_contract_with_account_id::<u128>(MPC_SIGNER, method_name, args)
-            .await
+        Ok(1) // Since the experimental signature deposit function was deprecated in favour of simply 1 yoctoNEAR
     }
 
     // Caching capabilities
