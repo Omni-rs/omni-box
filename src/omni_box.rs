@@ -13,7 +13,6 @@ use alloy::{
     primitives::{utils::parse_units, Address, U256},
     providers::ext::AnvilApi,
 };
-use serde_json::json;
 use sha3::{Digest, Sha3_256};
 use std::fs::{self, OpenOptions};
 use std::io::prelude::*;
@@ -28,8 +27,6 @@ pub struct OmniBox {
     pub deployer_account: NearAccount,
     pub friendly_near_json_rpc_client: FriendlyNearJsonRpcClient,
 }
-
-const MPC_SIGNER: &str = "v1.signer-prod.testnet";
 
 impl OmniBox {
     pub async fn new() -> Self {
