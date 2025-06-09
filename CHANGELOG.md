@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6](https://github.com/Omni-rs/omni-box/compare/v0.1.5...v0.1.6) - 2025-06-09
+
+### Added
+
+- update experimental signature deposit ([#7](https://github.com/Omni-rs/omni-box/pull/7))
+
+### Other
+
+- update ubuntu version
+
 ## [0.1.5](https://github.com/Omni-rs/omni-box/compare/v0.1.4...v0.1.5) - 2025-01-20
 
 ### Fixed
