@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8](https://github.com/Omni-rs/omni-box/compare/v0.1.7...v0.1.8) - 2025-06-10
+
+### Added
+
+- added send actions to friendly json client ([#11](https://github.com/Omni-rs/omni-box/pull/11))
+
 ## [0.1.7](https://github.com/Omni-rs/omni-box/compare/v0.1.6...v0.1.7) - 2025-06-09
 
 ### Added
