@@ -214,6 +214,39 @@ impl FriendlyNearJsonRpcClient {
         self.send_transaction_request(request).await
     }
 
+    pub async fn send_actions(
+        &self,
+        actions: Vec<Action>,
+    ) -> Result<RpcTransactionResponse, Box<dyn Error>> {
+        let account_id = self.account_config.account_id.clone();
+
+        let (nonce, block_hash) = self
+            .get_nonce_and_block_hash(account_id.clone(), self.account_config.public_key.clone())
+            .await
+            .unwrap();
+
+        let nonce = nonce + 1;
+
+        let near_tx: Transaction = Transaction::V0(TransactionV0 {
+            signer_id: account_id.clone(),
+            public_key: self.signer.public_key(),
+            nonce,
+            receiver_id: account_id.clone(),
+            block_hash,
+            actions,
+        });
+
+        let signer: near_crypto::Signer = self.signer.clone().into();
+
+        // Sign and send the transaction
+        let request = RpcSendTransactionRequest {
+            signed_transaction: near_tx.sign(&signer),
+            wait_until: TxExecutionStatus::Final,
+        };
+
+        self.send_transaction_request(request).await
+    }
+
     // private functions
     async fn wait_for_transaction(
         &self,
